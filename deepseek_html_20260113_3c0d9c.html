@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha Online - Multiplayer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .status {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        #status-text {
+            font-size: 1.2em;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        #room-id {
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 1.1em;
+            color: #6f42c1;
+            font-weight: bold;
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .player {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .player-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .player-x { color: #ff6b6b; }
+        .player-o { color: #4ecdc4; }
+        
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 5px;
+            min-height: 24px;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .cell:hover {
+            background: #f8f9fa;
+            transform: scale(1.05);
+        }
+        
+        .cell.x { 
+            color: #ff6b6b; 
+            font-weight: bold;
+        }
+        
+        .cell.o { 
+            color: #4ecdc4; 
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        
+        #start-btn {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+        }
+        
+        #list-rooms-btn {
+            background: #4ecdc4;
+            color: white;
+        }
+        
+        #restart-btn {
+            background: #ff6b6b;
+            color: white;
+            display: none;
+        }
+        
+        .join-section {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #room-code-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 50px;
+            font-size: 1em;
+            text-align: center;
+        }
+        
+        #join-btn {
+            background: #20c997;
+            color: white;
+        }
+        
+        .chat-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .message {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .message.own {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message.other {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 50px;
+            font-size: 1em;
+        }
+        
+        #send-btn {
+            background: #4ecdc4;
+            color: white;
+            padding: 12px 20px;
+        }
+        
+        .instructions {
+            background: #fff9db;
+            border-left: 4px solid #ffd43b;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .instructions h3 {
+            color: #e67700;
+            margin-bottom: 8px;
+        }
+        
+        .instructions p {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Jogo da Velha Online</h1>
+        <p class="subtitle">Jogue com amigos em tempo real!</p>
+        
+        <div class="game-area">
+            <div class="left-panel">
+                <div class="status">
+                    <div id="status-text">🟡 Conectando ao servidor...</div>
+                    <div id="room-id"></div>
+                </div>
+                
+                <div class="player-info">
+                    <div class="player">
+                        <span class="player-icon player-x">❌</span>
+                        <div>Jogador X</div>
+                        <div id="player-x-name" class="player-name">-</div>
+                    </div>
+                    <div class="player">
+                        <span class="player-icon player-o">⭕</span>
+                        <div>Jogador O</div>
+                        <div id="player-o-name" class="player-name">-</div>
+                    </div>
+                </div>
+                
+                <div class="board" id="board">
+                    <!-- Células serão geradas pelo JavaScript -->
+                </div>
+                
+                <div class="controls">
+                    <div class="controls-row">
+                        <button id="start-btn">🎯 Criar Nova Sala</button>
+                        <button id="list-rooms-btn">📋 Listar Salas</button>
+                    </div>
+                    
+                    <div class="join-section">
+                        <input type="text" id="room-code-input" placeholder="Digite o código da sala">
+                        <button id="join-btn" onclick="joinRoomByCode()">Entrar na Sala</button>
+                    </div>
+                    
+                    <div class="controls-row">
+                        <button id="restart-btn" onclick="restartGame()">🔄 Reiniciar Jogo</button>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>📋 Como jogar:</h3>
+                    <p>1. <strong>Criar sala:</strong> Clique em "Criar Nova Sala"</p>
+                    <p>2. <strong>Compartilhar:</strong> Passe o código para um amigo</p>
+                    <p>3. <strong>Entrar:</strong> Cole o código e clique em "Entrar na Sala"</p>
+                    <p>4. <strong>Jogar:</strong> Clique nas células para fazer suas jogadas</p>
+                    <p>5. <strong>Chat:</strong> Use o chat à direita para conversar</p>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <h3 style="margin-bottom: 15px;">💬 Chat do Jogo</h3>
+                <div class="chat-box">
+                    <div id="messages">
+                        <div class="message other">
+                            <strong>Sistema:</strong> Bem-vindo ao Jogo da Velha Online!
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="message-input" placeholder="Digite sua mensagem..." 
+                               onkeypress="if(event.key === 'Enter') sendMessage()">
+                        <button id="send-btn" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
+                
+                <div class="instructions" style="margin-top: 20px;">
+                    <h3>⚙️ Configuração necessária:</h3>
+                    <p>1. Crie uma conta em <a href="https://supabase.com" target="_blank">supabase.com</a></p>
+                    <p>2. Crie um projeto e vá em Settings > API</p>
+                    <p>3. Copie a URL e a chave pública (anon key)</p>
+                    <p>4. Cole no arquivo supabase-config.js</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuração (você vai editar este arquivo) -->
+    <script src="supabase-config.js"></script>
+    
+    <!-- Lógica principal do jogo -->
+    <script src="game.js"></script>
+</body>
+</html>
