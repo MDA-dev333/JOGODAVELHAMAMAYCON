@@ -11,10 +11,10 @@
 
 window.SUPABASE_CONFIG = {
     // SUA URL DO SUPABASE (ex: https://abc123.supabase.co)
-    url: "COLE_SUA_URL_AQUI",
+    url: "https://idhhzmlffqtwluawywms.supabase.co",
     
     // SUA CHAVE PÚBLICA (anon/public key)
-    key: "COLE_SUA_CHAVE_AQUI"
+    key: "sb_publishable_OFjwmBqfKw_BdxjoWTmB7g_pMKHbuxB"
 };
 
 // =============================================
